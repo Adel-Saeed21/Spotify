@@ -1,0 +1,10 @@
+# pubspec.yaml
+flutter_native_splash:
+  color: "#FFFFFF"                           
+  image: assets/images/Vector.png        
+
+  color_dark: "#121212"                      
+  image_dark: assets/images/Vector.png    
+
+  android: true
+  ios: true

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/core/config/routing/routes.dart';
+import 'package:spotify/features/get_start_screen/presentation/get_start_screen.dart';
+import 'package:spotify/features/splash /presentation/splash_screen.dart';
 
 class AppRoute {
   AppRoute._();
@@ -35,7 +37,17 @@ class AppRoute {
         pageBuilder: (context, state) {
           return _buildPageWithTransition(
             key: state.pageKey,
-            child: const Scaffold(body: Center(child: Text('Splash Screen'))),
+            child: const SplashScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.getStartScreen,
+        name: Routes.getStartScreen,
+        pageBuilder: (context, state) {
+          return _buildPageWithTransition(
+            key: state.pageKey,
+            child: const GetStartScreen(),
           );
         },
       ),

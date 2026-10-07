@@ -9,4 +9,9 @@ class AppStrings {
   static const String chooseModeText = 'Choose Mode';
   static const String lightModeText = 'Light Mode';
   static const String darkModeText = 'Dark Mode';
+  static const String enjoyListeningToMusicText = 'Enjoy Listening To Music';
+  static const String enjoyListeningToMusicSecondText =
+      'Spotify is a proprietary Swedish audio\nstreaming and media services provider.';
+  static const String register = 'Register';
+  static const String signIn='Sign In';
 }

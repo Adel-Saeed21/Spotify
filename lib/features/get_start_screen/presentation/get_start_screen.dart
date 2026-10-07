@@ -8,8 +8,6 @@ import 'package:spotify/core/service/spacing.dart';
 import 'package:spotify/core/widgets/app_button.dart';
 import 'package:spotify/features/get_start_screen/presentation/widgets/get_start_logo.dart';
 import 'package:spotify/features/get_start_screen/presentation/widgets/get_start_message.dart';
-import 'package:spotify/features/get_start_screen/presentation/widgets/get_started_button.dart';
-
 class GetStartScreen extends StatelessWidget {
   const GetStartScreen({super.key});
 

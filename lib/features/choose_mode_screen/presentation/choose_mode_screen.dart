@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spotify/core/config/assets/app_assets.dart';
 import 'package:spotify/core/config/assets/app_strings.dart';
+import 'package:spotify/core/config/routing/routes.dart';
 import 'package:spotify/core/config/theme/font_weight_helper.dart';
 import 'package:spotify/core/service/spacing.dart';
 import 'package:spotify/core/widgets/app_button.dart';
@@ -49,7 +51,9 @@ class ChooseModeScreen extends StatelessWidget {
                               constraints: BoxConstraints(maxWidth: 360.w),
                               child: AppButton(
                                 text: AppStrings.containueButtonText,
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.pushNamed(Routes.authScreen);
+                                },
                               ),
                             ),
                           ),

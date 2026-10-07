@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-extension Navigation on BuildContext {
-  Future<dynamic> pushNamed(String routeName, {Object? arguments}) {
-    return Navigator.of(this).pushNamed(routeName, arguments: arguments);
+extension NavigationX on BuildContext {
+  Future<T?> pushNamed<T>(String routeName, {Object? extra}) {
+    return GoRouter.of(this).push<T>(routeName, extra: extra);
   }
 
-  Future<dynamic> pushReplacmentNamed(String routeName, {Object? arguments}) {
-    return Navigator.of(
-      this,
-    ).pushReplacementNamed(routeName, arguments: arguments);
+  void pushReplacementNamed(String routeName, {Object? extra}) {
+    GoRouter.of(this).pushReplacement(routeName, extra: extra);
   }
 
-  Future<dynamic> pushNameAndRemoveUntil(
-    String routeName, {
-    Object? arguments,
-    required RoutePredicate predicate,
-  }) {
-    return Navigator.of(
-      this,
-    ).pushNamedAndRemoveUntil(routeName, predicate, arguments: arguments);
+  void goNamed(String routeName, {Object? extra}) {
+    GoRouter.of(this).go(routeName, extra: extra);
   }
 
-  void pop() => Navigator.of(this).pop();
+  void safePop({String fallback = '/'}) {
+    if (canPop()) {
+      pop();
+    } else {
+      go(fallback);
+    }
+  }
 }

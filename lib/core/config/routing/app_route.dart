@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/core/config/routing/routes.dart';
+import 'package:spotify/features/auth/presentation/pages/auth_screen.dart';
+import 'package:spotify/features/auth/presentation/pages/register_screen.dart';
+import 'package:spotify/features/auth/presentation/pages/sign_in_screen.dart';
 import 'package:spotify/features/choose_mode_screen/presentation/choose_mode_screen.dart';
 import 'package:spotify/features/get_start_screen/presentation/get_start_screen.dart';
 import 'package:spotify/features/splash /presentation/splash_screen.dart';
@@ -63,6 +66,31 @@ class AppRoute {
           );
         },
       ),
+
+      GoRoute(
+        path: Routes.authScreen,
+        name: Routes.authScreen,
+        pageBuilder: (context, state) {
+          return _buildPageWithTransition(
+            key: state.pageKey,
+            child: const AuthScreen(),
+          );
+        },
+      ),
+
+      GoRoute(path:Routes.registerScreen, name: Routes.registerScreen, pageBuilder: (context, state) {
+        return _buildPageWithTransition(
+          key: state.pageKey,
+          child: const RegisterScreen(),
+        );
+      }),
+      GoRoute(path:  Routes.signInScreen, name: Routes.signInScreen, pageBuilder: (context, state) {
+        return _buildPageWithTransition(
+          key: state.pageKey,
+          child: const SignInScreen(),
+        );
+      }),
+
     ],
   );
 }

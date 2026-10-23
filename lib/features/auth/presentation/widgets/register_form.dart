@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:spotify/core/config/assets/app_strings.dart';
 import 'package:spotify/core/service/spacing.dart';
+import 'package:spotify/features/auth/presentation/logic/auth_bloc.dart';
+import 'package:spotify/features/auth/presentation/logic/auth_event.dart';
+import 'package:spotify/features/auth/presentation/logic/auth_state.dart';
 import 'package:spotify/features/auth/presentation/widgets/auth_text_field.dart';
 
 class RegisterForm extends StatefulWidget {
@@ -37,6 +41,14 @@ class _RegisterFormState extends State<RegisterForm> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      FocusScope.of(context).unfocus();
+      context.read<AuthBloc>().add(
+            RegisterRequested(
+              name: _nameController.text.trim(),
+              email: _emailController.text.trim(),
+              password: _passwordController.text,
+            ),
+          );
     }
   }
 
@@ -53,8 +65,9 @@ class _RegisterFormState extends State<RegisterForm> {
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) => _emailFocus.requestFocus(),
-            validator: (v) =>
-                (v == null || v.trim().isEmpty) ? AppStrings.nameRequired : null,
+            validator: (v) => (v == null || v.trim().isEmpty)
+                ? AppStrings.nameRequired
+                : null,
           ),
           verticalSpace(16),
           AuthTextField(
@@ -84,24 +97,39 @@ class _RegisterFormState extends State<RegisterForm> {
               onPressed: () =>
                   setState(() => _obscurePassword = !_obscurePassword),
               icon: Icon(
-              _obscurePassword
-                  ? Icons.visibility_off_outlined
-                  : Icons.visibility_outlined,
-              color: Colors.white38,
+                _obscurePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: Colors.white38,
+              ),
             ),
-            ),
-            validator: (v) =>
-                (v == null || v.length < 6) ? AppStrings.passwordTooShort : null,
+            validator: (v) => (v == null || v.length < 6)
+                ? AppStrings.passwordTooShort
+                : null,
           ),
           verticalSpace(28),
-          SizedBox(
-            width: double.infinity,
-            height: 64.h,
-            child: ElevatedButton(
-              onPressed: _submit,
-              child: const Text(AppStrings.createAccount),
-            ),
-),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final isLoading = state is AuthLoading;
+              return SizedBox(
+                width: double.infinity,
+                height: 64.h,
+                child: ElevatedButton(
+                  onPressed: isLoading ? null : _submit,
+                  child: isLoading
+                      ? SizedBox(
+                          width: 24.r,
+                          height: 24.r,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(AppStrings.createAccount),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

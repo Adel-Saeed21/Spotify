@@ -1,17 +1,301 @@
-# spotify
+# Spotify Clone
 
-A new Flutter project.
+A music streaming client built with Flutter, modeled on the Spotify experience. The project is a reference implementation of a production-grade Flutter codebase: it follows Clean Architecture with a feature-first layout, uses BLoC for predictable state management, and separates development and production builds through flavors.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [State Management](#state-management)
+- [Dependency Injection](#dependency-injection)
+- [Navigation](#navigation)
+- [Error Handling](#error-handling)
+- [Theming and Responsive Layout](#theming-and-responsive-layout)
+- [Build Flavors](#build-flavors)
+- [Getting Started](#getting-started)
+- [Testing](#testing)
+- [Code Generation](#code-generation)
+- [Contributing](#contributing)
+
+## Overview
+
+The application covers the onboarding and authentication journey of a music streaming product: a native splash screen, a get-started screen, a light/dark mode selection, and an authentication flow backed by Firebase Authentication. Each feature is developed as an independent module with its own data, domain and presentation layers, so new capabilities can be added without touching existing ones.
+
+## Features
+
+| Feature | Description | Status |
+| --- | --- | --- |
+| Splash screen | Native splash for Android and iOS, with separate light and dark variants | Done |
+| Get started | Onboarding entry screen | Done |
+| Choose mode | User selects light or dark appearance; the choice is persisted across launches | Done |
+| Authentication hub | Entry point to the register and sign-in flows | Done |
+| Registration | Email/password sign-up through Firebase Authentication, with user-facing error messages | Done |
+| Sign in | Sign-in screen UI | UI only, integration in progress |
+
+## Tech Stack
+
+| Concern | Technology |
+| --- | --- |
+| Framework | Flutter (Dart SDK ^3.13) |
+| State management | `flutter_bloc`, `hydrated_bloc` |
+| Dependency injection | `get_it` |
+| Navigation | `go_router` |
+| Backend | Firebase Core, Firebase Authentication |
+| Functional error handling | `dartz` (`Either<Failure, T>`) |
+| Value equality | `equatable` |
+| Serialization and code generation | `freezed`, `json_serializable`, `json_annotation`, `build_runner` |
+| Networking (prepared) | `retrofit` |
+| Responsive UI | `flutter_screenutil_plus` |
+| Vector assets | `flutter_svg` |
+| Native splash | `flutter_native_splash` |
+| Testing | `flutter_test`, `mocktail` |
+| Static analysis | `flutter_lints` |
+
+## Architecture
+
+The codebase follows **Clean Architecture**, organized **by feature**. Each feature is split into three layers with a strict dependency rule: outer layers depend on inner layers, never the reverse.
+
+```
+Presentation  ->  Domain  <-  Data
+(UI, BLoC)        (Entities,    (Models, Data sources,
+                   Use cases,    Repository implementations)
+                   Repository
+                   contracts)
+```
+
+**Domain layer** — the core of each feature and pure Dart with no Flutter or Firebase dependencies.
+- *Entities* describe business objects (for example `UserEntity`).
+- *Repository contracts* are abstract classes that define what the feature can do (for example `AuthRepo`).
+- *Use cases* encapsulate a single business action and implement the shared `UseCase<Type, Params>` contract, returning `Future<Either<Failure, Type>>` (for example `RegisterUseCase`).
+
+**Data layer** — implements the domain contracts.
+- *Data sources* talk to external systems such as Firebase (for example `AuthRemoteDataSource`).
+- *Models* extend or map to entities and handle conversion from external formats (for example `UserModel.fromFirebase`).
+- *Repository implementations* coordinate data sources, catch platform exceptions and translate them into domain `Failure` objects.
+
+**Presentation layer** — everything the user sees.
+- *Pages* are top-level screens wired to the router.
+- *Widgets* are small, reusable, feature-scoped UI components.
+- *Logic* holds the BLoC or Cubit, its events and its states.
+
+A registration request flows through the layers as follows:
+
+```
+RegisterScreen
+  -> AuthBloc            (receives RegisterRequested, emits AuthLoading)
+  -> RegisterUseCase     (single business action)
+  -> AuthRepo            (domain contract)
+  -> AuthRepoImpl        (maps FirebaseAuthException to ServerFailure)
+  -> AuthRemoteDataSource -> FirebaseAuth
+  <- Either<Failure, UserEntity>
+  <- AuthSuccess / AuthFailure
+```
+
+## Project Structure
+
+```
+lib/
+├── main_dev.dart                  # Entry point for the dev flavor
+├── main_production.dart           # Entry point for the production flavor
+├── spotify_app.dart               # Root widget: theme, router, ScreenUtil setup
+├── firebase_options.dart          # Generated by FlutterFire CLI
+├── core/
+│   ├── config/
+│   │   ├── assets/                # Asset, vector and string constants
+│   │   ├── dependency_injection/  # GetIt service locator setup
+│   │   ├── routing/               # GoRouter configuration and route names
+│   │   └── theme/                 # Colors, text sizes, themes, ThemeCubit
+│   ├── errors/                    # Failure hierarchy
+│   ├── service/                   # Spacing helpers, navigation extensions
+│   ├── usecase/                   # Base UseCase contract
+│   └── widgets/                   # Shared widgets (e.g. AppButton)
+└── features/
+    ├── splash/
+    ├── get_start_screen/
+    ├── choose_mode_screen/
+    └── auth/
+        ├── data/
+        │   ├── datasource/
+        │   ├── model/
+        │   └── repo_implementation/
+        ├── domain/
+        │   ├── entities/
+        │   ├── repo/
+        │   └── usecase/
+        └── presentation/
+            ├── logic/             # AuthBloc, AuthEvent, AuthState
+            ├── pages/
+            └── widgets/
+
+test/                              # Mirrors the lib/ structure
+```
+
+## State Management
+
+State is managed with the **BLoC pattern** via `flutter_bloc`.
+
+- **Bloc** is used for event-driven features with asynchronous work. `AuthBloc` handles `RegisterRequested` events and emits a sealed set of states: `AuthInitial`, `AuthLoading`, `AuthSuccess` and `AuthFailure`. Sealed classes give exhaustive pattern matching in the UI, so every state is handled explicitly.
+- **Cubit** is used for simple state without events. `ThemeCubit` exposes a single `updateTheme(ThemeMode)` method.
+- **HydratedBloc** persists state to local storage automatically. `ThemeCubit` extends `HydratedCubit`, so the user's appearance choice survives app restarts without any manual storage code. Storage is initialized at startup and supports both mobile and web.
+- **Equatable** is used on events, states and parameters so that identical states do not trigger unnecessary rebuilds.
+
+BLoCs never call Firebase directly; they depend only on use cases, which keeps business logic testable and independent of the backend.
+
+## Dependency Injection
+
+Dependencies are registered in a single service locator (`lib/core/config/dependency_injection/get_it.dart`) using `get_it`, grouped per feature.
+
+| Registration | Lifetime | Reason |
+| --- | --- | --- |
+| `FirebaseAuth`, data sources, repositories, use cases | Lazy singleton | Stateless and shared; created on first use |
+| `AuthBloc` | Factory | A fresh instance per screen, so state does not leak between visits |
+
+Every dependency is registered against its abstract type, which allows any layer to be replaced with a mock in tests.
+
+## Navigation
+
+Routing uses `go_router` with declarative, path-based routes defined in `AppRoute`. Route paths are centralized as constants in `Routes` to avoid string duplication. All routes share a custom page transition (a short slide combined with a fade) for a consistent feel across the app.
+
+## Error Handling
+
+Errors are handled functionally rather than with exceptions crossing layer boundaries.
+
+- Repository implementations catch `FirebaseAuthException` and unexpected errors, and return `Left(Failure)`.
+- Firebase error codes such as `email-already-in-use`, `weak-password` and `network-request-failed` are mapped to clear, user-facing messages.
+- Successful results are returned as `Right(value)`.
+- The BLoC folds the `Either` into either a failure or a success state.
+
+All failures extend the `Failure` base class, which makes it straightforward to introduce more specific types (for example cache or validation failures) as the app grows.
+
+## Theming and Responsive Layout
+
+- Light and dark themes are defined in `AppTheme`, built on a central color palette (`AppColors`), text size scale and font weight helper.
+- The custom **Satoshi** font family is bundled in five weights.
+- Layouts scale with `flutter_screenutil_plus`, against a design reference size of 375 x 812, so the UI adapts consistently across screen sizes.
+- The native splash screen has dedicated light and dark configurations in `flutter_native_splash.yaml`.
+
+## Build Flavors
+
+The app ships two flavors, each with its own entry point and application ID, so development and production builds can be installed side by side on the same device.
+
+| Flavor | Entry point | Android application ID | Intended use |
+| --- | --- | --- | --- |
+| `dev` | `lib/main_dev.dart` | `com.example.spotify.dev` | Local development and testing |
+| `production` | `lib/main_production.dart` | `com.example.spotify.production` | Release builds |
+
+Flavors are currently configured for Android in `android/app/build.gradle.kts`. iOS scheme configuration is planned.
+
+Run a flavor:
+
+```bash
+flutter run --flavor dev -t lib/main_dev.dart
+flutter run --flavor production -t lib/main_production.dart
+```
+
+Build a release artifact:
+
+```bash
+flutter build apk --flavor production -t lib/main_production.dart --release
+flutter build appbundle --flavor production -t lib/main_production.dart --release
+```
+
+For VS Code, ready-made launch configurations for both flavors are provided in `.vscode/launch.json`.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter SDK with Dart 3.13 or later
+- Android Studio or Xcode, with an emulator, simulator or physical device
+- A Firebase project with Email/Password sign-in enabled
+- FlutterFire CLI, if you need to regenerate the Firebase configuration
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+git clone https://github.com/Adel-Saeed21/Spotify.git
+cd Spotify
+flutter pub get
+```
+
+### Firebase Configuration
+
+The project expects the following files, generated for your own Firebase project:
+
+- `lib/firebase_options.dart`
+- `android/app/google-services.json`
+- `ios/Runner/GoogleService-Info.plist`
+
+To generate them:
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+### Run
+
+```bash
+flutter run --flavor dev -t lib/main_dev.dart
+```
+
+## Testing
+
+Tests live under `test/` and mirror the structure of `lib/`, so each test file is easy to locate next to its source counterpart.
+
+- **Unit tests** cover business logic and state management. `ThemeCubit` is tested for its initial state, state emission, JSON round-trip serialization for every `ThemeMode`, and restoration of a previously saved theme.
+- **Mocking** is done with `mocktail`, which needs no code generation. Storage for `HydratedBloc` is replaced with a mock so tests run in isolation without touching the file system.
+- The layered architecture means use cases, repositories and BLoCs can each be tested against mocked abstractions of the layer below.
+
+Run the test suite:
+
+```bash
+flutter test
+```
+
+Run with coverage:
+
+```bash
+flutter test --coverage
+```
+
+Run static analysis:
+
+```bash
+flutter analyze
+```
+
+## Code Generation
+
+Models that use `freezed` or `json_serializable` require generated files. After changing an annotated class, run:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+To regenerate automatically while developing:
+
+```bash
+dart run build_runner watch --delete-conflicting-outputs
+```
+
+To regenerate the native splash screen after editing `flutter_native_splash.yaml`:
+
+```bash
+dart run flutter_native_splash:create
+```
+
+## Contributing
+
+1. Create a branch from `main` using the `feature/<name>` convention.
+2. Keep each feature self-contained under `lib/features/<feature_name>/` with `data`, `domain` and `presentation` layers.
+3. Register new dependencies in the service locator against their abstract types.
+4. Add or update tests for new business logic.
+5. Make sure `flutter analyze` and `flutter test` pass before opening a pull request.
+
+## Disclaimer
+
+This is an educational project, built to practise architecture and engineering patterns in Flutter. It is not affiliated with, endorsed by or connected to Spotify AB.

@@ -5,39 +5,40 @@ import 'package:spotify/core/config/theme/app_text_sizes.dart';
 import 'package:spotify/core/config/theme/font_weight_helper.dart';
 
 class AppTheme {
+  AppTheme._();
+
+  static const String _fontFamily = 'Satoshi';
+
+  static ElevatedButtonThemeData get _elevatedButtonTheme {
+    return ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryColor,
+        foregroundColor: Colors.white,
+        textStyle: TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: AppTextSizes.lg,
+          fontWeight: FontWeightHelper.bold,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.r),
+        ),
+      ),
+    );
+  }
+
   static final lightTheme = ThemeData(
     primaryColor: AppColors.primaryColor,
     scaffoldBackgroundColor: AppColors.lightBackground,
     brightness: Brightness.light,
-    fontFamily: 'Satoshi',
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryColor,
-        textStyle:  TextStyle(
-          color: Colors.white,
-          fontSize: AppTextSizes.xl,
-          fontWeight: FontWeightHelper.bold,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.r)),
-      ),
-    ),
+    fontFamily: _fontFamily,
+    elevatedButtonTheme: _elevatedButtonTheme,
   );
 
   static final darkTheme = ThemeData(
     primaryColor: AppColors.primaryColor,
     scaffoldBackgroundColor: AppColors.darkBackground,
-    fontFamily: 'Satoshi',
     brightness: Brightness.dark,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryColor,
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: AppTextSizes.xl,
-          fontWeight: FontWeightHelper.bold,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.r)),
-      ),
-    ),
+    fontFamily: _fontFamily,
+    elevatedButtonTheme: _elevatedButtonTheme,
   );
 }

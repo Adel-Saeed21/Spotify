@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/core/config/routing/routes.dart';
-import 'package:spotify/core/service/navigation_extension.dart';
 import 'package:spotify/core/service/spacing.dart';
 import 'package:spotify/features/auth/presentation/widgets/auth_background.dart';
 import 'package:spotify/features/auth/presentation/widgets/auth_buttons.dart';

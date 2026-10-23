@@ -24,8 +24,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       password: password,
     );
 
-    await credential.user!.updateDisplayName(name);
-    await credential.user!.reload();
+    final user = credential.user;
+    if (user == null) {
+      throw FirebaseAuthException(
+        code: 'user-null',
+        message: 'User creation succeeded but no user was returned.',
+      );
+    }
+
+    await user.updateDisplayName(name);
+    await user.reload();
 
     return UserModel.fromFirebase(_auth.currentUser!);
   }

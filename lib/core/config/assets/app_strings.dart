@@ -26,4 +26,9 @@ class AppStrings {
   static const String emailInvalid = 'Enter a valid email';
   static const String passwordTooShort = 'At least 6 characters';
   static const String or = "Or";
+
+  static const String usernameOrEmail = 'Enter Username Or Email';
+  static const String recoveryPassword = 'Recovery Password';
+  static const String notAMember = 'Not A Member ?';
+  static const String registerNow = 'Register Now';
 }

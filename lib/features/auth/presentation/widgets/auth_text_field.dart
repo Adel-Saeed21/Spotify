@@ -36,6 +36,11 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final hintColor = isDark ? AppColors.gray : Colors.black45;
+    final borderColor = isDark ? Colors.white10 : AppColors.fieldBorderLight;
+
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
@@ -45,23 +50,20 @@ class AuthTextField extends StatelessWidget {
       validator: validator,
       onFieldSubmitted: onFieldSubmitted,
       cursorColor: AppColors.primaryColor,
-      style: TextStyle(color: Colors.white, fontSize: AppTextSizes.base),
+      style: TextStyle(color: textColor, fontSize: AppTextSizes.base),
       decoration: InputDecoration(
         labelText: label,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         filled: true,
-        fillColor: const Color(0xff1B1B1B),
-        labelStyle: TextStyle(
-          color: AppColors.gray,
-          fontSize: AppTextSizes.base,
-        ),
+        fillColor: isDark ? AppColors.fieldDark : AppColors.fieldLight,
+        labelStyle: TextStyle(color: hintColor, fontSize: AppTextSizes.base),
         floatingLabelStyle: TextStyle(
           color: AppColors.primaryColor,
           fontSize: AppTextSizes.base,
         ),
         suffixIcon: suffixIcon,
         contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 22.h),
-        enabledBorder: _border(Colors.white10),
+        enabledBorder: _border(borderColor),
         focusedBorder: _border(AppColors.primaryColor, width: 1.5),
         errorBorder: _border(Colors.redAccent),
         focusedErrorBorder: _border(Colors.redAccent, width: 1.5),

@@ -31,6 +31,10 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightBackground,
     brightness: Brightness.light,
     fontFamily: _fontFamily,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primaryColor,
+      brightness: Brightness.light,
+    ),
     elevatedButtonTheme: _elevatedButtonTheme,
   );
 
@@ -39,6 +43,10 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkBackground,
     brightness: Brightness.dark,
     fontFamily: _fontFamily,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primaryColor,
+      brightness: Brightness.dark,
+    ),
     elevatedButtonTheme: _elevatedButtonTheme,
   );
 }

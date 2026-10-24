@@ -21,6 +21,7 @@ class RegisterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return BlocProvider(
       create: (_) => getIt<AuthBloc>(),
       child: BlocListener<AuthBloc, AuthState>(
@@ -30,7 +31,7 @@ class RegisterScreen extends StatelessWidget {
               ..hideCurrentSnackBar()
               ..showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
-            // TODO: context.pushReplacementNamed(Routes.homeScreen);
+            context.pushNamed(Routes.signInScreen);
           }
         },
         child: Scaffold(
@@ -46,7 +47,7 @@ class RegisterScreen extends StatelessWidget {
                     Text(
                       AppStrings.register,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: onSurface,
                         fontWeight: FontWeightHelper.semiBold,
                         fontSize: AppTextSizes.xxl,
                       ),
@@ -79,7 +80,7 @@ class RegisterScreen extends StatelessWidget {
                         Text(
                           AppStrings.doYouHaveAnAccount,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: onSurface,
                             fontSize: AppTextSizes.base,
                             fontWeight: FontWeightHelper.medium,
                           ),

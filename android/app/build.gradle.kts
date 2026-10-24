@@ -41,13 +41,15 @@ android {
     }
     flavorDimensions += "default"
     productFlavors {
+        // Both flavors share the application id registered in Firebase
+        // (com.example.spotify). To give a flavor its own id again, register
+        // that package name in Firebase and download a matching
+        // google-services.json before adding an applicationIdSuffix here.
         create("dev") {
             dimension = "default"
-            applicationIdSuffix = ".dev"
         }
         create("production") {
             dimension = "default"
-            applicationIdSuffix = ".production"
         }
     }
 

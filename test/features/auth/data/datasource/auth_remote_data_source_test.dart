@@ -70,7 +70,7 @@ void main() {
       },
     );
 
-   test(
+  test(
   'should throw FirebaseAuthException when credential.user is null',
   () async {
     when(
@@ -91,5 +91,31 @@ void main() {
     );
   },
 );
+  test(
+      'should rethrow FirebaseAuthException when email is already in use',
+      () async {
+        // Arrange
+        when(
+          () => mockFirebaseAuth.createUserWithEmailAndPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenThrow(FirebaseAuthException(code: 'email-already-in-use'));
+
+        // Act & Assert
+        await expectLater(
+          () => dataSource.register(
+            name: tName,
+            email: tEmail,
+            password: tPassword,
+          ),
+          throwsA(
+            isA<FirebaseAuthException>()
+                .having((e) => e.code, 'code', 'email-already-in-use'),
+          ),
+        );
+        verifyNever(() => mockUser.updateDisplayName(any()));
+      },
+    );
   });
 }

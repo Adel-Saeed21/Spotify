@@ -8,18 +8,22 @@ class AuthAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
+    final width = MediaQuery.sizeOf(context).width;
 
     return Stack(
       alignment: Alignment.center,
       children: [
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: BackCircleButton(onTap: () => context.pop()),
+          child: BackCircleButton(
+            onTap: () {
+              if (context.canPop()) context.pop();
+            },
+          ),
         ),
         Image.asset(
           Assets.assetsImagesVector,
-          width: size.width * 0.3,
+          width: width * 0.3,
           fit: BoxFit.contain,
         ),
       ],

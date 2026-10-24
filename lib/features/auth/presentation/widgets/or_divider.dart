@@ -8,20 +8,24 @@ class OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final lineColor = onSurface.withValues(alpha: 0.2);
+
     return Row(
       children: [
-        const Expanded(child: Divider(color: Colors.white24, thickness: 1)),
+        Expanded(child: Divider(color: lineColor, thickness: 1)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: Text(
             AppStrings.or,
             style: TextStyle(
-              color: Colors.white38,
+              color: onSurface.withValues(alpha: 0.5),
               fontSize: AppTextSizes.sm,
             ),
           ),
         ),
-        const Expanded(child: Divider(color: Colors.white12, thickness: 1)),      ],
+        Expanded(child: Divider(color: lineColor, thickness: 1)),
+      ],
     );
   }
 }

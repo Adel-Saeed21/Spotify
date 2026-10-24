@@ -100,7 +100,9 @@ class _RegisterFormState extends State<RegisterForm> {
                 _obscurePassword
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: Colors.white38,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white38
+                    : Colors.black38,
               ),
             ),
             validator: (v) => (v == null || v.length < 6)

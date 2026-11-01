@@ -4,6 +4,7 @@ import 'package:spotify/core/errors/failures.dart';
 import 'package:spotify/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:spotify/features/auth/domain/entities/user_entity.dart';
 import 'package:spotify/features/auth/domain/repo/auth_repo.dart';
+import 'package:spotify/features/auth/domain/usecase/sign_in_usecase.dart';
 
 class AuthRepoImpl implements AuthRepo {
   AuthRepoImpl(this._remote);
@@ -20,6 +21,23 @@ class AuthRepoImpl implements AuthRepo {
         name: name,
         email: email,
         password: password,
+      );
+      return Right(user);
+    } on FirebaseAuthException catch (e) {
+      return Left(ServerFailure(_mapAuthError(e.code)));
+    } catch (_) {
+      return const Left(ServerFailure('Something went wrong, try again'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> signIn({
+    required SignInParams params,
+  }) async {
+    try {
+      final user = await _remote.signIn(
+        email: params.email,
+        password: params.password,
       );
       return Right(user);
     } on FirebaseAuthException catch (e) {

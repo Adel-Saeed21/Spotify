@@ -38,6 +38,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   flutter_native_splash: ^2.4.8
   flutter_screenutil_plus: ^1.6.0
+  flutter_secure_storage: ^11.2.0
   flutter_svg: ^2.3.0
   freezed: ^4.0.2
   get_it: ^9.3.0

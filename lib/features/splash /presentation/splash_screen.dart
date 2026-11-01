@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/core/config/assets/app_vector.dart';
 import 'package:spotify/core/config/routing/routes.dart';
+import 'package:spotify/core/service/secure_storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,11 +16,15 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        context.go(Routes.getStartScreen);
-      }
-    });
+    _navigateFromSplash();
+  }
+
+  Future<void> _navigateFromSplash() async {
+    await Future<void>.delayed(const Duration(seconds: 2));
+    final hasToken = await SecureStorageService.hasValidToken();
+
+    if (!mounted) return;
+    context.go(hasToken ? Routes.homeScreen : Routes.getStartScreen);
   }
 
   @override

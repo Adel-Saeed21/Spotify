@@ -32,8 +32,7 @@ class SignInScreen extends StatelessWidget {
               ..hideCurrentSnackBar()
               ..showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is AuthSuccess) {
-            // TODO: روح للـ Home
-            // context.pushNamed(Routes.homeScreen);
+            context.pushNamed(Routes.homeScreen);
           }
         },
         child: Scaffold(

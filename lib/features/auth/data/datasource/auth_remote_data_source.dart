@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:spotify/core/service/secure_storage_service.dart';
 import 'package:spotify/features/auth/data/model/user_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -7,6 +8,8 @@ abstract class AuthRemoteDataSource {
     required String email,
     required String password,
   });
+
+  Future<UserModel> signIn({required String email, required String password});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -35,6 +38,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await user.updateDisplayName(name);
     await user.reload();
 
+    return UserModel.fromFirebase(_auth.currentUser!);
+  }
+
+  @override
+  Future<UserModel> signIn({
+    required String email,
+    required String password,
+  }) async {
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    final user = credential.user;
+
+    if (user == null) {
+      throw FirebaseAuthException(
+        code: 'user-null',
+        message: 'Sign-in succeeded but no user was returned.',
+      );
+    }
+    await SecureStorageService.saveToken(user.refreshToken!);
     return UserModel.fromFirebase(_auth.currentUser!);
   }
 }

@@ -6,6 +6,7 @@ import 'package:spotify/features/auth/presentation/pages/register_screen.dart';
 import 'package:spotify/features/auth/presentation/pages/sign_in_screen.dart';
 import 'package:spotify/features/choose_mode_screen/presentation/choose_mode_screen.dart';
 import 'package:spotify/features/get_start_screen/presentation/get_start_screen.dart';
+import 'package:spotify/features/home/presentation/home_screen.dart';
 import 'package:spotify/features/splash /presentation/splash_screen.dart';
 
 class AppRoute {
@@ -88,6 +89,13 @@ class AppRoute {
         return _buildPageWithTransition(
           key: state.pageKey,
           child: const SignInScreen(),
+        );
+      }),
+
+      GoRoute(path: Routes.homeScreen, name: Routes.homeScreen, pageBuilder: (context, state) {
+        return _buildPageWithTransition(
+          key: state.pageKey,
+          child: const HomeScreen(),
         );
       }),
 

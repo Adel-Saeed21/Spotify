@@ -4,6 +4,7 @@ import 'package:spotify/features/auth/data/datasource/auth_remote_data_source.da
 import 'package:spotify/features/auth/data/repo_implementation/auth_repo_impl.dart';
 import 'package:spotify/features/auth/domain/repo/auth_repo.dart';
 import 'package:spotify/features/auth/domain/usecase/register_usecase.dart';
+import 'package:spotify/features/auth/domain/usecase/sign_in_usecase.dart';
 import 'package:spotify/features/auth/presentation/logic/auth_bloc.dart';
 
 final getIt = GetIt.instance;
@@ -30,8 +31,14 @@ void _setupAuth() {
   getIt.registerLazySingleton<RegisterUseCase>(
     () => RegisterUseCase(getIt<AuthRepo>()),
   );
+  getIt.registerLazySingleton<SignInUsecase>(
+    () => SignInUsecase(getIt<AuthRepo>()),
+  );
 
   getIt.registerFactory<AuthBloc>(
-    () => AuthBloc(registerUseCase: getIt<RegisterUseCase>()),
+    () => AuthBloc(
+      registerUseCase: getIt<RegisterUseCase>(),
+      signInUsecase: getIt<SignInUsecase>(),
+    ),
   );
 }
